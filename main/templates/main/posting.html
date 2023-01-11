@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+<!-- Boot strap -->
+    <!-- 합쳐지고 최소화된 최신 CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <!-- 부가적인 테마 -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+    <!-- 합쳐지고 최소화된 최신 자바스크립트 -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{%static 'css/style.css' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
+  <title>Albo Market</title>
+
+  <script src="https://kit.fontawesome.com/221ae2e8b7.js" crossorigin="anonymous"></script>
+  <script src="{%static 'js/main.js' %}" defer></script>
+
+   
+  <style>
+
+    img{
+        text-align: center;
+        width: 300px;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 20px;
+        
+    }
+
+
+</style>
+
+</head>
+
+<body>
+  <!-- navbar -->
+  <nav class="navbar">
+    <div class="navbar__logo">
+      <i class="fa-solid fa-leaf"></i>
+      <a href="{%url 'main_index' %}">Albo Market</a>
+    </div>
+
+    <ul class="navbar__menu">
+      <li><a href="{%url 'main_index' %}">홈</a></li>
+      <li><a href="signup">회원가입</a></li>
+      <li><a href="signin">로그인</a></li>
+      <li><a href="{%url 'main_logout' %}">로그아웃</a></li>
+      <li><a href="upload">사진업로드</a></li>
+    </ul>
+
+    <ul class="navbar__icons">
+      <li><i class="fa-brands fa-twitter"></i></li>
+      <li><i class="fa-brands fa-facebook"></i></li>
+      <li><i class="fa-brands fa-instagram"></i></li>
+    </ul>
+  </nav>
+
+ <!-- 이미지 삽입 -->
+  <div class="wrap">
+    {% for item in items %}
+
+    {% if forloop.first %}
+    <div class="row">
+      {% endif %}
+
+      <div class="col-xs-4">
+        <form action="posting/new_post" method="POST">{% csrf_token %}
+
+          {% if item.item_img %}
+          <a href="{{item.get_absolute_url}}" target="_blank">
+          <img src="{{ item.item_img.url }}" alt="" width='80%'>
+        
+          <br>
+          {% endif %}
+
+          
+        <p><i class="fa-solid fa-seedling"></i>{{item.item_name}}<i class="fa-solid fa-seedling"></i></p>
+  
+        <p><i class="fa-solid fa-won-sign"></i>{{item.item_price}}</p>
+        <p>내용: {{item.item_content}}</p>
+        <p><i class="fa-regular fa-user"></i> {{item.user_name}}</p>
+      </a>
+
+      <a class="fa-solid-status2" href="{{item.get_absolute_url}}" target="_blank">
+       <p><i> {{item.trade_status}} </i></p>
+       </a>
+  
+        </form>
+      </div>
+    
+
+      {% if forloop.counter|divisibleby:3 %}
+    </div>
+
+    <div class="row">{% endif %}
+
+      {% if forloop.last %}
+    </div>
+    {% endif %}
+
+    {% endfor %}
+
+  </div>
+  <!-- <div class="wrap">
+    {% for item in items %}
+    {% if forloop.first %}<div class="row">{% endif %}
+      <div class="col-xs-4">
+        <form action="posting/new_post" method="POST">{% csrf_token %}
+
+          {% if item.item_img %}
+          <img src="{{ item.item_img.url }}" alt="" width='80%'>
+          <br>
+          {% endif %}
+
+          <a href="{{item.get_absolute_url}}" target="_blank">
+            <p>상품: {{item.item_name}}</p>
+          </a>
+          <p>가격: {{item.item_price}}</p>
+          <p>내용: {{item.item_content}}</p>
+          <p>거래상태: {{item.trade_status}}</p>
+          <p>작성자: {{item.user_name}}</p>
+        </form>
+      </div>
+      {% if forloop.counter|divisibleby:3 %}
+    </div>
+    <div class="row">{% endif %}
+      {% if forloop.last %}</div>{% endif %}
+    {% endfor %}
+
+  </div> -->
+
+
+
+
+
+
+</body>
+
+</html>

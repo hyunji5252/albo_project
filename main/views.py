@@ -23,12 +23,9 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 
 
-# Create your views here.
 
-
-def index(request):
-    items = Item.objects.all().order_by('-pk') 
-    
+# 메인화면 데이터 시각화 start
+def data_visualization():
     df_item = pd.DataFrame(list(Item.objects.all().values()))
     filt_1 = ((df_item['item_price'] >= 100000) & (df_item['item_price'] < 450000))
     filt_2 = ((df_item['item_price'] >= 450000) & (df_item['item_price'] < 800000))
@@ -107,13 +104,20 @@ def index(request):
 
     plot_div = plot({'data': graphs1, 'layout': layout_graph}, 
                     output_type='div')
-
-    context = dict() 
-    context['items'] = items
+    
+    context = dict()
     context['plot_div'] = plot_div
-    context['fig_div'] = fig_div                
-    print(type(graphs1))
-    print(type(layout_graph))                   
+    context['fig_div'] = fig_div 
+
+    return context
+# 메인화면 데이터 시각화 end
+
+def index(request):
+    items = Item.objects.all().order_by('-pk') 
+    
+    context = data_visualization()
+    context['items'] = items
+                                 
                   
     return render(request, 'main/index.html',context)
     
@@ -130,92 +134,8 @@ def join(request):
     user = User(user_name = name, user_email = email, user_password = pw)
     user.save()
 
-
-#   시각화 start
-    df_item = pd.DataFrame(list(Item.objects.all().values()))
-    filt_1 = ((df_item['item_price'] >= 100000) & (df_item['item_price'] < 450000))
-    filt_2 = ((df_item['item_price'] >= 450000) & (df_item['item_price'] < 800000))
-    filt_3 = ((df_item['item_price'] >= 800000) & (df_item['item_price'] < 1600000))
-    df_item_1 = df_item[filt_1]
-    df_item_2 = df_item[filt_2]
-    df_item_3 = df_item[filt_3]
-
-    labels = ['10만원~45만원', '45만원~80만원', '80만원~160만원']
-    values = [len(df_item_1['item_price']), len(df_item_2['item_price']),len(df_item_3['item_price'])]
-
-    fig = go.Pie(labels=labels, values=values, hoverinfo='percent+label', insidetextorientation='radial', hole=.3)
-
-    graphs2 = []
-    graphs2.append(fig)
-
-    layout_pie = {'title': '지금 이만큼이나 거래 중이에요 :0',
-                    'height': 480,
-                    'width': 1270,}
-                    
-    fig_div = plot({'data':graphs2, 'layout' : layout_pie}, output_type='div')
-    
-
-    df_trade = pd.DataFrame(list(Trade.objects.all().values()))
-   
-    Filt_1 = ((df_trade['item_price'] >= 100000) & (df_trade['item_price'] < 450000))
-    Filt_2 = ((df_trade['item_price'] >= 450000) & (df_trade['item_price'] < 800000))
-    Filt_3 = ((df_trade['item_price'] >= 800000) & (df_trade['item_price'] < 1600000))
-    df_trade_1 = df_trade[Filt_1]
-    df_trade_2 = df_trade[Filt_2]
-    df_trade_3 = df_trade[Filt_3]
-    x1 = df_trade_1['item_date']
-    x2 = df_trade_2['item_date']
-    x3 = df_trade_3['item_date']
-
-    def get_counts(seq):
-        counts={}
-        for x in seq:
-            if x in counts:
-                counts[x] += 1
-            else : 
-                counts[x] = 1
-        return counts
-
-    count_1 = get_counts(x1)
-    count_2 = get_counts(x2)
-    count_3 = get_counts(x3)
-
-    x1 = list(count_1.keys())
-    x2 = list(count_2.keys())
-    x3 = list(count_3.keys())
-    y1 = []
-    y2 = []
-    y3 = []
-
-    for i in list(count_1.keys()):
-        y1.append(count_1[i])
-    for i in list(count_2.keys()):
-        y2.append(count_2[i])  
-    for i in list(count_3.keys()):
-        y3.append(count_3[i])      
-
-    graphs1 = []
-    graphs1.append(go.Bar(x=x1, y=y1, name="10만원~45만원",))
-    graphs1.append(go.Bar(x=x2, y=y2, name="45만원~80만원",))
-    graphs1.append(go.Bar(x=x3, y=y3, name="80만원~160만원",))
-   
-    
-
-    layout_graph = {
-        'title': '최근 이만큼이나 거래됐어요! :)',
-        'xaxis_title': 'Date',
-        'yaxis_title': '수량 (개)',
-        'height': 480,
-        'width': 1270,}
-
-    plot_div = plot({'data': graphs1, 'layout': layout_graph}, 
-                    output_type='div')
-
-    context = dict() 
+    context = data_visualization()
     context['items'] = items
-    context['plot_div'] = plot_div
-    context['fig_div'] = fig_div 
-# 시각화 end
 
     return render(request, 'main/index.html',context )
 
@@ -267,94 +187,8 @@ def posting(request):
                         user_name= users)
         new_name.save()
 
- 
-   
-
-
-# ----------------------graph start
-    df_item = pd.DataFrame(list(Item.objects.all().values()))
-    filt_1 = ((df_item['item_price'] >= 100000) & (df_item['item_price'] < 450000))
-    filt_2 = ((df_item['item_price'] >= 450000) & (df_item['item_price'] < 800000))
-    filt_3 = ((df_item['item_price'] >= 800000) & (df_item['item_price'] < 1600000))
-    df_item_1 = df_item[filt_1]
-    df_item_2 = df_item[filt_2]
-    df_item_3 = df_item[filt_3]
-
-    labels = ['10만원~45만원', '45만원~80만원', '80만원~160만원']
-    values = [len(df_item_1['item_price']), len(df_item_2['item_price']),len(df_item_3['item_price'])]
-
-    fig = go.Pie(labels=labels, values=values, hoverinfo='percent+label', insidetextorientation='radial', hole=.3)
-
-    graphs2 = []
-    graphs2.append(fig)
-
-    layout_pie = {'title': '지금 이만큼이나 거래 중이에요 :0',
-                    'height': 480,
-                    'width': 1270,}
-                    
-    fig_div = plot({'data':graphs2, 'layout' : layout_pie}, output_type='div')
-    
-
-    df_trade = pd.DataFrame(list(Trade.objects.all().values()))
-   
-    Filt_1 = ((df_trade['item_price'] >= 100000) & (df_trade['item_price'] < 450000))
-    Filt_2 = ((df_trade['item_price'] >= 450000) & (df_trade['item_price'] < 800000))
-    Filt_3 = ((df_trade['item_price'] >= 800000) & (df_trade['item_price'] < 1600000))
-    df_trade_1 = df_trade[Filt_1]
-    df_trade_2 = df_trade[Filt_2]
-    df_trade_3 = df_trade[Filt_3]
-    x1 = df_trade_1['item_date']
-    x2 = df_trade_2['item_date']
-    x3 = df_trade_3['item_date']
-
-    def get_counts(seq):
-        counts={}
-        for x in seq:
-            if x in counts:
-                counts[x] += 1
-            else : 
-                counts[x] = 1
-        return counts
-
-    count_1 = get_counts(x1)
-    count_2 = get_counts(x2)
-    count_3 = get_counts(x3)
-
-    x1 = list(count_1.keys())
-    x2 = list(count_2.keys())
-    x3 = list(count_3.keys())
-    y1 = []
-    y2 = []
-    y3 = []
-
-    for i in list(count_1.keys()):
-        y1.append(count_1[i])
-    for i in list(count_2.keys()):
-        y2.append(count_2[i])  
-    for i in list(count_3.keys()):
-        y3.append(count_3[i])      
-
-    graphs1 = []
-    graphs1.append(go.Bar(x=x1, y=y1, name="10만원~45만원",))
-    graphs1.append(go.Bar(x=x2, y=y2, name="45만원~80만원",))
-    graphs1.append(go.Bar(x=x3, y=y3, name="80만원~160만원",))
-   
-    
-
-    layout_graph = {
-        'title': '최근 이만큼이나 거래됐어요! :)',
-        'xaxis_title': 'Date',
-        'yaxis_title': '수량 (개)',
-        'height': 480,
-        'width': 1270,}
-
-    plot_div = plot({'data': graphs1, 'layout': layout_graph}, 
-                    output_type='div')
-
-    context = dict() 
+    context = data_visualization()
     context['items'] = items
-    context['plot_div'] = plot_div
-    context['fig_div'] = fig_div  
 
     return render(request, 'main/index.html',context) 
 
@@ -387,6 +221,7 @@ def new_post(request, pk):
     
 UPLOAD_DIR = r'C:\albino\mult_albo_project\media\images'
 
+from PIL import Image
 
 #가격예측버튼 누르면 실행되는 함수
 def predict_price(request):
@@ -439,89 +274,8 @@ def remove_post(request, pk):
   
     post.delete()
 
-    df_item = pd.DataFrame(list(Item.objects.all().values()))
-    filt_1 = ((df_item['item_price'] >= 100000) & (df_item['item_price'] < 450000))
-    filt_2 = ((df_item['item_price'] >= 450000) & (df_item['item_price'] < 800000))
-    filt_3 = ((df_item['item_price'] >= 800000) & (df_item['item_price'] < 1600000))
-    df_item_1 = df_item[filt_1]
-    df_item_2 = df_item[filt_2]
-    df_item_3 = df_item[filt_3]
-
-    labels = ['10만원~45만원', '45만원~80만원', '80만원~160만원']
-    values = [len(df_item_1['item_price']), len(df_item_2['item_price']),len(df_item_3['item_price'])]
-
-    fig = go.Pie(labels=labels, values=values, hoverinfo='percent+label', insidetextorientation='radial', hole=.3)
-
-    graphs2 = []
-    graphs2.append(fig)
-
-    layout_pie = {'title': '지금 이만큼이나 거래 중이에요 :0',
-                            'height': 480,
-                            'width': 1270,}
-                            
-    fig_div = plot({'data':graphs2, 'layout' : layout_pie}, output_type='div')
-            
-
-    df_trade = pd.DataFrame(list(Trade.objects.all().values()))
-        
-    Filt_1 = ((df_trade['item_price'] >= 100000) & (df_trade['item_price'] < 450000))
-    Filt_2 = ((df_trade['item_price'] >= 450000) & (df_trade['item_price'] < 800000))
-    Filt_3 = ((df_trade['item_price'] >= 800000) & (df_trade['item_price'] < 1600000))
-    df_trade_1 = df_trade[Filt_1]
-    df_trade_2 = df_trade[Filt_2]
-    df_trade_3 = df_trade[Filt_3]
-    x1 = df_trade_1['item_date']
-    x2 = df_trade_2['item_date']
-    x3 = df_trade_3['item_date']
-
-    def get_counts(seq):
-        counts={}
-        for x in seq:
-            if x in counts:
-                counts[x] += 1
-            else : 
-                counts[x] = 1
-        return counts
-
-    count_1 = get_counts(x1)
-    count_2 = get_counts(x2)
-    count_3 = get_counts(x3)
-
-    x1 = list(count_1.keys())
-    x2 = list(count_2.keys())
-    x3 = list(count_3.keys())
-    y1 = []
-    y2 = []
-    y3 = []
-
-    for i in list(count_1.keys()):
-        y1.append(count_1[i])
-    for i in list(count_2.keys()):
-        y2.append(count_2[i])  
-    for i in list(count_3.keys()):
-        y3.append(count_3[i])      
-
-    graphs1 = []
-    graphs1.append(go.Bar(x=x1, y=y1, name="10만원~45만원",))
-    graphs1.append(go.Bar(x=x2, y=y2, name="45만원~80만원",))
-    graphs1.append(go.Bar(x=x3, y=y3, name="80만원~160만원",))
-   
-    
-
-    layout_graph = {
-        'title': '최근 이만큼이나 거래됐어요! :)',
-        'xaxis_title': 'Date',
-        'yaxis_title': '수량 (개)',
-        'height': 480,
-        'width': 1270,}
-
-    plot_div = plot({'data': graphs1, 'layout': layout_graph}, 
-                    output_type='div')
-    items = Item.objects.all()
-    context = dict() 
-    context['items'] = items
-    context['plot_div'] = plot_div
-    context['fig_div'] = fig_div  
+    context = data_visualization()
+    context['items'] = items 
 
         
     return render(request, 'main/index.html', context)
@@ -551,110 +305,21 @@ def boardEdit(request, pk):
             #image의 파일 형태가 PIL 형태
             image = items.item_img
             
-            print(image)
-            
-            
+
             # PIL 파일 또는 경로는 save할수 없기 때문에 InMemoryUploadedFile 함수를 이용하여 request해온
             # 이미지 파일 형식과 동일하게 맞춰줘야한다.(불러올 이미지, 새로 저장할 이미지 이름, 저장할 이미지 경로)
             heat_file = InMemoryUploadedFile(image, None, 'heat.jpeg', 'trade_images/jpeg',
                                      None, None)
             
-            print(heat_file)
             item_price = items.item_price
-            
             status = Trade(item_date=item_date, item_img=heat_file ,item_price=item_price)
-
             status.save()
-        #    chart start  
-            df_item = pd.DataFrame(list(Item.objects.all().values()))
-            filt_1 = ((df_item['item_price'] >= 100000) & (df_item['item_price'] < 450000))
-            filt_2 = ((df_item['item_price'] >= 450000) & (df_item['item_price'] < 800000))
-            filt_3 = ((df_item['item_price'] >= 800000) & (df_item['item_price'] < 1600000))
-            df_item_1 = df_item[filt_1]
-            df_item_2 = df_item[filt_2]
-            df_item_3 = df_item[filt_3]
-
-            labels = ['10만원~45만원', '45만원~80만원', '80만원~160만원']
-            values = [len(df_item_1['item_price']), len(df_item_2['item_price']),len(df_item_3['item_price'])]
-
-            fig = go.Pie(labels=labels, values=values, hoverinfo='percent+label', insidetextorientation='radial', hole=.3)
-
-            graphs2 = []
-            graphs2.append(fig)
-
-            layout_pie = {'title': '지금 이만큼이나 거래 중이에요 :0',
-                            'height': 480,
-                            'width': 1270,}
-                            
-            fig_div = plot({'data':graphs2, 'layout' : layout_pie}, output_type='div')
-            
-
-            df_trade = pd.DataFrame(list(Trade.objects.all().values()))
         
-            Filt_1 = ((df_trade['item_price'] >= 100000) & (df_trade['item_price'] < 450000))
-            Filt_2 = ((df_trade['item_price'] >= 450000) & (df_trade['item_price'] < 800000))
-            Filt_3 = ((df_trade['item_price'] >= 800000) & (df_trade['item_price'] < 1600000))
-            df_trade_1 = df_trade[Filt_1]
-            df_trade_2 = df_trade[Filt_2]
-            df_trade_3 = df_trade[Filt_3]
-            x1 = df_trade_1['item_date']
-            x2 = df_trade_2['item_date']
-            x3 = df_trade_3['item_date']
 
-    def get_counts(seq):
-        counts={}
-        for x in seq:
-            if x in counts:
-                counts[x] += 1
-            else : 
-                counts[x] = 1
-        return counts
-
-    count_1 = get_counts(x1)
-    count_2 = get_counts(x2)
-    count_3 = get_counts(x3)
-
-    x1 = list(count_1.keys())
-    x2 = list(count_2.keys())
-    x3 = list(count_3.keys())
-    y1 = []
-    y2 = []
-    y3 = []
-
-    for i in list(count_1.keys()):
-        y1.append(count_1[i])
-    for i in list(count_2.keys()):
-        y2.append(count_2[i])  
-    for i in list(count_3.keys()):
-        y3.append(count_3[i])      
-
-    graphs1 = []
-    graphs1.append(go.Bar(x=x1, y=y1, name="10만원~45만원",))
-    graphs1.append(go.Bar(x=x2, y=y2, name="45만원~80만원",))
-    graphs1.append(go.Bar(x=x3, y=y3, name="80만원~160만원",))
-   
-    
-
-    layout_graph = {
-        'title': '최근 이만큼이나 거래됐어요! :)',
-        'xaxis_title': 'Date',
-        'yaxis_title': '수량 (개)',
-        'height': 480,
-        'width': 1270,}
-
-    plot_div = plot({'data': graphs1, 'layout': layout_graph}, 
-                    output_type='div')
     items = Item.objects.all()
-    context = dict() 
+    context = data_visualization()
     context['items'] = items
-    context['plot_div'] = plot_div
-    context['fig_div'] = fig_div 
-# 시각화 end
-        # chart end
 
-   
-   
-   
     return render(request, 'main/index.html', context)
  
    
@@ -685,8 +350,6 @@ def create_reply(request, items_id):
     user = User.objects.get(user_name=request.session['user_name'])
     items = Item.objects.get(pk=items_id)
 
-    print("hello")
-
     new_comment = Comment(comment=reply, user_name=user, item_id=items, parent=parent)
     new_comment.save()
 
@@ -709,44 +372,6 @@ def trade(request, item_id):
 
 
 
-
-def Chart_Render(request):
-    df_item = pd.DataFrame(list(Item.objects.all().values()))
-    filt_1 = ((df_item['item_price'] >= 100000) & (df_item['item_price'] < 450000))
-    filt_2 = ((df_item['item_price'] >= 450000) & (df_item['item_price'] < 800000))
-    filt_3 = ((df_item['item_price'] >= 800000) & (df_item['item_price'] < 1600000))
-    df_item_1 = df_item[filt_1]
-    df_item_2 = df_item[filt_2]
-    df_item_3 = df_item[filt_3]
-
-    labels = ['Class1', 'Class2', 'Class3']
-    values = [df_item_1['item_price'].count(), df_item_2['item_price'].count(), df_item_3['item_price'].count()]
-    
-    fig = go.Figure(data = [go.Pie(labels=labels, values=values, textinfo='label+percent', insidetextorientation='radial')])
-    layout_pie = {'title': 'Market Price'}
-    fig_div = plot({'data':fig, 'layout' : layout_pie}, output_type='div')
-    # fig_div = fig_div.subplot(1,2,2)
-
-    df_trade = pd.DataFrame(list(Trade.objects.all().values()))
-
-    x1 = df_trade['item_date']
-    y1 = df_trade['item_price']
-
-    graphs = []
-    graphs.append(go.Bar(x=x1, y=y1))
-
-    layout_graph = {
-        'title': 'Currnet Trade',
-        'xaxis_title': 'Date',
-        'yaxis_title': 'Price (원)',
-        'height': 420,
-        'width': 560,}
-
-    plot_div = plot({'data': graphs, 'layout': layout_graph}, 
-                    output_type='div')
-    # plot_div = plot_div.subplot(1,2,1)                
-
-    return render(request, 'main/index.html', context={'plot_div': plot_div, 'fig_div':fig_div})
 
 
 def css(request):
